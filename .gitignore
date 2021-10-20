@@ -1,0 +1,9 @@
+*.txt
+**/__pycache__/
+
+# Latex files
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.synctex.gz
