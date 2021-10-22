@@ -63,7 +63,25 @@
 \begin{document}
 \maketitle
 
-\section{Geração de Chaves}
+\section{Geração e Verificação de Assinatura Digital}
+
+\subsection{Implementação}
+Foi desenvolvido um algoritmo em python na versão 3.8 ou acima que recebe um arquivo e gera a assinatura digital para ele ou verifica a assinatura. Para executar passando o documento \texttt{message.txt}, pode-se usar o comando abaixo:
+
+\begin{lstlisting}
+python src/rsa.py sample/message.txt
+\end{lstlisting}
+
+Pode ser passado o argumento \texttt{-h} para o programa para a listagem de opções disponíveis conforme mostrado abaixo:
+
+\begin{itemize}
+    \item ...
+\end{itemize}
+
+\subsection{RSA}
+\subsubsection{Geração de Chaves}
+Para a geração de chaves, inicialmente foram gerados 2 números primos aleatórios \texttt{p} e \texttt{q} de 1024 bits cada. Para obter estes números, foi inicialmente gerado um número qualquer do tamanho especificado, em seguida, sua primalidade foi testada para cada um dos primos até 1000, que foram computados uma vez pelo crivo de Erastótenes e dispostos em um array. Em seguida, é realizado o teste de primalidade probabilístico de Miller Rabin, executado 20 vezes. 
+
 
 
 \end{document}
