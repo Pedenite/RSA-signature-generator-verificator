@@ -38,3 +38,19 @@ def miller_rabin(n, rounds=20):
             return False
 
     return True
+
+def generate_prime_number(size=1024):
+    prime_numbers = erastotenes()
+    n = 0
+    while True:
+        n = random.randrange(1 << (size-1), (1 << size)-1)
+        divisible = False
+        for prime in prime_numbers:
+            if n%prime == 0:
+                divisible = True
+                break
+        
+        if not divisible and miller_rabin(n):
+            break
+
+    return n

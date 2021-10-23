@@ -1,6 +1,12 @@
 *.txt
 **/__pycache__/
 
+keys/*
+!keys/key_sample
+!keys/key_sample.pub
+sample/*
+!sample/msg.txt
+
 # Latex files
 *.aux
 *.fdb_latexmk
