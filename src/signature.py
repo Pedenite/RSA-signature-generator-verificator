@@ -61,7 +61,6 @@ else:
             content = base64.b64decode(f.read())
         
         cont_bytes = [x for x in content]
-        print(cont_bytes)
 
         if args.d:
             content = arr_to_bytes(cont_bytes)
@@ -81,26 +80,30 @@ if not args.d and args.s == None:
     secret = rsa.encrypt(arr_to_bytes(session), pswd)
     aeskey.save_keys(session, secret)
 
-# file = args.mensagem if args.d else args.o
-# file_attr = file.name.split(".")
-# filename = ".".join(file_attr[:-1])
-# file_ext = file_attr[-1]
 
-# if args.d:
-#     old_hash = ""
-#     msg_hash = hashlib.sha3_256(bytes_to_str(res).encode("utf-8")).hexdigest()
-#     print(msg_hash)
-#     with open(f"../{filename}_sign.{file_ext}", "r") as f:
-#         old_hash = base64.b64decode(f.read())
-    
-#     print("O hash da mensagem decifrada é equivalente ao encontrado no arquivo!" if hex(old_hash).split("x")[1] == msg_hash else "Os hashs se diferem!")
-# else:
-#     msg_hash = hashlib.sha3_256(bytes_to_str(m).encode("utf-8"))
-#     print(f"hash da mensagem armazenado no arquivo {filename}_sign.{file_ext}", msg_hash.hexdigest(), sep='\n')
-#     with open(f"../{filename}_sign.{file_ext}", "w") as f:
-#         f.write(base64.b64encode(msg_hash.digest()).decode("utf-8"))
+file = args.mensagem if args.d else args.o
+file_attr = file.name.split(".")
+filename = ".".join(file_attr[:-1])
+file_ext = file_attr[-1]
 
-# res = rsa.decrypt(m, pswd) if args.d else rsa.encrypt(m, pswd)
+def generateSign():
+    blocks = []
+    for block in res.blocks:
+        blocks += block
+    msg_hash = hashlib.sha3_256(bytes(blocks))
+    with open(f"../{filename}_sign.{file_ext}", "w") as f:
+        f.write(base64.b64encode(msg_hash.digest()).decode("utf-8"))
+
+def verifySign():
+    with open(f"../{filename}_sign.{file_ext}", "r") as f:
+        hashOfMsg = f.read()
+    msg_hash = hashlib.sha3_256(bytes(m_blocks))
+    print("O hash da mensagem decifrada é equivalente ao encontrado no arquivo!" if hashOfMsg == base64.b64encode(msg_hash.digest()).decode("utf-8") else "Os hashs se diferem!")
+
+if args.d:
+    verifySign()
+else:
+    generateSign()
 
 with args.o as f:
     blocks = []

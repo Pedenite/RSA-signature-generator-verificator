@@ -43,6 +43,8 @@ def store_keys(pub, priv, size=DEFAULT_SIZE):
 
     generate_file(f'../keys/{filename}.pub', pub)
     generate_file(f'../keys/{filename}', priv)
+    print(f'a chave publica foi gerada no diretorio keys/{filename}.pub')
+    print(f'a chave privada foi gerada no diretorio keys/{filename}')
 
 def parse_key(file, decod=False, size=DEFAULT_SIZE):
     key = None
