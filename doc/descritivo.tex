@@ -53,7 +53,7 @@
 % \pagecolor[rgb]{0.1,0.1,0.1} %black
 % \color[rgb]{0.75,0.75,0.75} %grey
 
-\title{\textbf{Segurança Computacional\\ \Large{Advanced Encryption Standard}}}
+\title{\textbf{Segurança Computacional\\ \Large{Geração e Verificação de Assinatura Digital}}}
 \author{Pedro Henrique de Brito Agnes, 18/0026305
 \\ Pedro Pessoa Ramos, 18/0026488
 }
@@ -63,9 +63,8 @@
 \begin{document}
 \maketitle
 
-\section{Geração e Verificação de Assinatura Digital}
+\section{Implementação}
 
-\subsection{Implementação}
 Foi desenvolvido um algoritmo em python na versão 3.8 ou acima que recebe um arquivo e gera a assinatura digital para ele ou verifica a assinatura. Para executar passando o documento \texttt{msg.txt}, pode-se usar o comando abaixo:
 
 \begin{lstlisting}
@@ -80,20 +79,22 @@ Pode ser passado o argumento \texttt{-h} para o programa para a listagem de opç
     \item \textbf{-d} - Argumento que indica que o programa vai descriptografar. Deve ser passado no final do comando sem parâmetros adicionais.
 \end{itemize}
 
-Por exemplo, para cifrar o arquivo \texttt{sample/msg.txt} com a chave pública \texttt{keys/key\_sample.pub} e armazenar o criptograma no arquivo \texttt{sample/cifra.txt}, pode ser usado o comando abaixo:
+Por exemplo, para gerar a assinatura digital do arquivo \texttt{sample/msg.txt} com a chave privada \texttt{keys/key\_sample} e armazenar o criptograma da mensagem no arquivo \texttt{sample/cifra.txt}, pode ser usado o comando abaixo:
 
 \begin{lstlisting}
 python src/signature.py sample/msg.txt -k keys/key_sample.pub -o sample/cifra.txt
 \end{lstlisting}
 
-Da mesma forma, para decifrá-lo e armazenar o resultado em um arquivo \texttt{sample/out.txt}, pode-se usar o comando abaixo que utiliza a chave privada:
+Além do argumento passado para o \texttt{-o}, será gerado um outro arquivo de mesmo nome concatenado com \texttt{\_sign} que representa a assinatura.
+
+Da mesma forma, para decifrar o criptograma gerado com a chave de sessão \texttt{keys/session\_sample} e verificar e armazenar o resultado em um arquivo \texttt{sample/out.txt}, pode-se usar o comando abaixo que utiliza a chave privada:
 
 \begin{lstlisting}
 python src/signature.py sample/cifra.txt -k keys/key_sample -o sample/out.txt -d
 \end{lstlisting}
 
-\subsection{RSA}
-\subsubsection{Geração de Chaves}
+\section{RSA}
+\subsection{Geração de Chaves}
 
 Inicialmente são gerados 2 números primos aleatórios \texttt{p} e \texttt{q} de 1024 bits cada. Para obter estes números, foi inicialmente gerado um número qualquer do tamanho especificado, em seguida, sua primalidade foi testada para cada um dos primos até 1000, que foram dispostos em um array após serem computados uma única vez pelo crivo de Erastótenes. Em seguida, é realizado o teste de primalidade probabilístico de Miller Rabin, executado 20 vezes. Se ambos os testes passarem, o número é considerado primo e selecionado. Caso contrário, um novo número aleatório é gerado para realizar o teste novamente. Os códigos relacionados à geração e verificação dos primos estão localizados na pasta \texttt{src/util/primes.py}, incluindo a implementação do algoritmo de Miller Rabin.
 
@@ -105,7 +106,7 @@ Com \texttt{p} e \texttt{q} definidos, a chave pública é obtida usando 2 valor
 
 Com o resultado da função acima, é calculado o seu inverso multiplicativo com \texttt{e} para assim obter o valor de \texttt{d} que é o único valor necessário para a chave privada. Para fins de performance, também são adicionados os valores de \texttt{p} e \texttt{q} na chave privada. Após a geração, as chaves são guardadas na pasta \texttt{keys} com a formatação base64, sendo a pública com a extensão \texttt{.pub}.
 
-\subsubsection{}
+\subsection{}
 
 
 \end{document}

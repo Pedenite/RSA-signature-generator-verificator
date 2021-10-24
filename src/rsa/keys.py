@@ -38,7 +38,7 @@ def store_keys(pub, priv, size=DEFAULT_SIZE):
             out = base64.b64encode(res.encode("utf-8"))
             f.write(out.decode("utf-8"))
 
-    id_key = len(os.listdir('../keys'))//2
+    id_key = len([x for x in os.listdir('../keys') if x.startswith('key_')])//2
     filename = f'key_{id_key}'
 
     generate_file(f'../keys/{filename}.pub', pub)
@@ -51,12 +51,12 @@ def parse_key(file, decod=False, size=DEFAULT_SIZE):
         content = base64.b64decode(b64).decode("utf-8")
         key = [content[i:i+size//8] for i in range(0, len(content), size//8)]
 
-    if decod and len(key) == 3 or not decod and len(key) == 2:
+    if decod and len(key) == 2 or not decod and len(key) == 3:
         res = []
         for k in key:
             res.append(str_to_bytes(k))
 
         return res
     else:
-        mode = "privada para decifrar" if decod else "pública para cifrar"
-        raise Exception(f"Chave inválida! Favor usar a chave {mode}!")
+        mode = "pública para decifrar" if decod else "privada para cifrar"
+        raise Exception(f"Chave inválida! Para a assinatura digital, favor usar a chave {mode}!")

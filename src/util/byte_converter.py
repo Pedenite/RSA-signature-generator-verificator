@@ -13,3 +13,19 @@ def str_to_bytes(s):
         res |= ord(c)
 
     return res
+
+def bytes_to_arr(n):
+    res = []
+    while n > 0:
+        res.insert(0, n & 0xff)
+        n >>= 8
+
+    return res
+
+def arr_to_bytes(a):
+    res = 0
+    for c in a:
+        res <<= 8
+        res |= c
+
+    return res

@@ -4,6 +4,8 @@
 keys/*
 !keys/key_sample
 !keys/key_sample.pub
+!keys/session_sample
+!keys/session_sample.pub
 sample/*
 !sample/msg.txt
 
