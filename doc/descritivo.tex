@@ -65,33 +65,36 @@
 
 \section{Implementação}
 
-Foi desenvolvido um algoritmo em python na versão 3.8 ou acima que recebe um arquivo e gera a assinatura digital para ele ou verifica a assinatura. Para executar passando o documento \texttt{msg.txt}, pode-se usar o comando abaixo:
+Foi desenvolvido um algoritmo em python na versão 3.8 ou acima que recebe um arquivo e gera a assinatura digital para ele ou verifica a assinatura. Para executar passando o documento \texttt{msg.txt} e produzindo o resultado em \texttt{sample/cifra.txt}, pode-se usar o comando abaixo:
 
 \begin{lstlisting}
-python src/signature.py sample/msg.txt
+python src/signature.py sample/msg.txt -o sample/cifra.txt
 \end{lstlisting}
 
-Pode ser passado o argumento \texttt{-h} para o programa para a listagem de opções disponíveis conforme mostrado abaixo:
+Vão ser geradas as chaves pública e privada do RSA que foram usadas para a cifração do hash (assinatura) e da chave de sessão (AES), que será gerada também, contendo a original em um arquivo e a sua cifra em outro. O programa vai avisar o local e nome de cada uma das chaves geradas. Pode ser passado o argumento \texttt{-h} para o programa para a listagem de opções disponíveis conforme mostrado abaixo:
 
 \begin{itemize}
     \item \textbf{-o} - Onde será feito o output. Obrigatório
     \item \textbf{-k} - Arquivo com a chave pública ou privada, a depender da operação. Obrigatório na decifração.
+    \item \textbf{-s} - Arquivo com a chave de sessão ou o criptograma da chave de sessão. Obrigatório na decifração.
     \item \textbf{-d} - Argumento que indica que o programa vai descriptografar. Deve ser passado no final do comando sem parâmetros adicionais.
 \end{itemize}
 
-Por exemplo, para gerar a assinatura digital do arquivo \texttt{sample/msg.txt} com a chave privada \texttt{keys/key\_sample} e armazenar o criptograma da mensagem no arquivo \texttt{sample/cifra.txt}, pode ser usado o comando abaixo:
+Por exemplo, para cifrar o arquivo \texttt{sample/msg.txt} com a chave de sessão encontrada no arquivo \texttt{keys/session\_sample} gerar a sua assinatura digital com a chave privada localizada em \texttt{keys/key\_sample} e armazenar o criptograma da mensagem no arquivo \texttt{sample/cifra.txt}, pode ser usado o comando abaixo:
 
 \begin{lstlisting}
-python src/signature.py sample/msg.txt -k keys/key_sample.pub -o sample/cifra.txt
+python src/signature.py sample/msg.txt -s keys/session_sample -k keys/key_sample -o sample/cifra.txt
 \end{lstlisting}
 
-Além do argumento passado para o \texttt{-o}, será gerado um outro arquivo de mesmo nome concatenado com \texttt{\_sign} que representa a assinatura.
+Além do argumento passado para o \texttt{-o}, será gerado um outro arquivo de mesmo nome concatenado com \texttt{\_sign} que representa a assinatura. Este arquivo não precisará ser passado ao programa, ele será encontrado automaticamente ao passar o \texttt{-o} ao usar a opção de decifrar.
 
-Da mesma forma, para decifrar o criptograma gerado com a chave de sessão \texttt{keys/session\_sample} e verificar e armazenar o resultado em um arquivo \texttt{sample/out.txt}, pode-se usar o comando abaixo que utiliza a chave privada:
+Da mesma forma, para decifrar o criptograma gerado com a chave de sessão cifrada \texttt{keys/session\_sample.pub} e armazenar o resultado em um arquivo \texttt{sample/out.txt}, pode-se usar o comando abaixo que utiliza a chave privada:
 
 \begin{lstlisting}
-python src/signature.py sample/cifra.txt -k keys/key_sample -o sample/out.txt -d
+python src/signature.py sample/cifra.txt -s keys/session_sample.pub -k keys/key_sample.pub -o sample/out.txt -d
 \end{lstlisting}
+
+Após a finalização da execução, o programa vai informar se o hash gerado após as operações é igual ao hash obtido anteriormente, ou seja, vai verificar se a assinatura é válida.
 
 \section{RSA}
 \subsection{Geração de Chaves}
@@ -106,7 +109,34 @@ Com \texttt{p} e \texttt{q} definidos, a chave pública é obtida usando 2 valor
 
 Com o resultado da função acima, é calculado o seu inverso multiplicativo com \texttt{e} para assim obter o valor de \texttt{d} que é o único valor necessário para a chave privada. Para fins de performance, também são adicionados os valores de \texttt{p} e \texttt{q} na chave privada. Após a geração, as chaves são guardadas na pasta \texttt{keys} com a formatação base64, sendo a pública com a extensão \texttt{.pub}.
 
-\subsection{}
+\subsection{Cifragem e Decifragem}
 
+Como trata-se da assinatura digital, é usada a chave privada para cifrar e a pública para decifrar, sendo o contrário do RSA "convencional". Para cifrar, é feita simplesmente uma potenciação entre a mensagem (bytes concatenados em um número gigante) e o valor de \texttt{d}, onde é pego o resto da divisão por \texttt{n}. Já para decifrar, é feita a potênciação da mensagem com \texttt{e}, também pegando o resto da divisão por \texttt{n}.
+
+No programa, o que é cifrado pelo RSA é o hash do criptograma da mensagem gerado pelo AES, resultando na assinatura digital e em seguida, a chave de sessão que foi usada no AES. Para a verificação, a assinatura é decifrada para assim obter o hash, e em seguida, esse hash é comparado com o hash gerado pelo criptograma que foi recebido e o programa informa se os hashs são iguais. Também é decifrada a chave de sessão para que a mensagem original seja recuperada. Os arquivos relacionados à implementação RSA podem ser encontrados na pasta \texttt{src/rsa/}.
+
+\section{AES}
+
+O AES foi usado no modo CTR com o nonce fixo no valor 0 para a cifração simétrica da mensagem, que é usada para gerar o hash, sendo usada a chave de sessão para cifrar e decifrar. A implementação da cifra de blocos foi aproveitada do trabalho anterior da disciplina de segurança computacional, podendo ser econtrada na pasta \texttt{src/aes/}.
+
+\section{Assinatura}
+
+Para a assinatura, foi criado um hash do criptograma gerado pelo AES usando a função \texttt{sha3\_256} da \texttt{hashlib} diponibilizada pela linguagem python. Para a formatação dos valores ao escrevê-los em arquivos, foi usado o \texttt{base64}, que é disponibilizado pelo python também, dispondo de operações para codificar e decodificar no formato. A implementação completa pode ser resumida às imagens abaixo:
+
+\begin{figure}[H]
+	\centering
+    \includegraphics[width=.65\textwidth]{img/assinatura.png}
+    \caption{Geração da assinatura}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+    \includegraphics[width=.65\textwidth]{img/verificacao.png}
+    \caption{Verificação da assinatura}
+\end{figure}
+
+\section{Conclusões}
+
+Com a assinatura do documento, ao cifrá-lo e enviar a outra pessoa com as chaves necessárias, fica mais fácil de se verificar a integridade, pois qualquer mínima alteração no documento gerará um hash diferente que será identificado na verificação. O RSA é um grande nome no ramo das assinaturas digitais, sendo muito usado para a cifração do hash, já que é um algoritmo assimétrico e permite o envio apenas da cahve pública para o recipiente, o que impede de que seja gerada uma assinatura falsa.
 
 \end{document}
