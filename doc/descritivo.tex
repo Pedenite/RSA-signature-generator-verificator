@@ -119,9 +119,11 @@ No programa, o que é cifrado pelo RSA é o hash do criptograma da mensagem gera
 
 O AES foi usado no modo CTR com o nonce fixo no valor 0 para a cifração simétrica da mensagem, que é usada para gerar o hash, sendo usada a chave de sessão para cifrar e decifrar. A implementação da cifra de blocos foi aproveitada do trabalho anterior da disciplina de segurança computacional, podendo ser econtrada na pasta \texttt{src/aes/}.
 
+A geração da chave é feita na pasta \texttt{keys/}, sendo nomeada \texttt{session} e concatenada com um id incremental. Consequentemente, será gerado o arquivo de mesmo nome porém com a extensão \texttt{.pub} que representa a mesma chave porém cifrada pelo RSA e é a usada na verificação da assinatura, porém deve ser decifrada antes de ser utilizada. 
+
 \section{Assinatura}
 
-Para a assinatura, foi criado um hash do criptograma gerado pelo AES usando a função \texttt{sha3\_256} da \texttt{hashlib} diponibilizada pela linguagem python. Para a formatação dos valores ao escrevê-los em arquivos, foi usado o \texttt{base64}, que é disponibilizado pelo python também, dispondo de operações para codificar e decodificar no formato. A implementação completa pode ser resumida às imagens abaixo:
+Para a assinatura, foi criado um hash do criptograma gerado pelo AES usando a função \texttt{sha3\_256} da \texttt{hashlib} diponibilizada pela linguagem python. Para a formatação dos valores ao escrevê-los em arquivos, foi usado o \texttt{base64}, que é disponibilizado pelo python também, dispondo de operações para codificar e decodificar no formato. A assinatura do documento é gerada em um arquivo separado que tem o mesmo nome do output (criptograma da mensagem) concatenado com um \texttt{\_sign}. A implementação completa pode ser resumida às imagens abaixo:
 
 \begin{figure}[H]
 	\centering
