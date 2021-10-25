@@ -107,7 +107,7 @@ Com \texttt{p} e \texttt{q} definidos, a chave pública é obtida usando 2 valor
     \phi(n) = (p-1) \times (q-1)
 \]
 
-Com o resultado da função acima, é calculado o seu inverso multiplicativo com \texttt{e} para assim obter o valor de \texttt{d} que é o único valor necessário para a chave privada. Para fins de performance, também são adicionados os valores de \texttt{p} e \texttt{q} na chave privada. Após a geração, as chaves são guardadas na pasta \texttt{keys} com a formatação base64, sendo a pública com a extensão \texttt{.pub}.
+Com o resultado da função acima, é calculado o seu inverso multiplicativo com \texttt{e} para assim obter o valor de \texttt{d} que é o único valor necessário para a chave privada. Para fins de performance, também são adicionados os valores de \texttt{p} e \texttt{q} na chave privada. Após a geração, as chaves são guardadas na pasta \texttt{keys} com a formatação base64 sendo a pública com a extensão \texttt{.pub}. O conteúdo dos arquivos é basicamente os números que compõem cada uma das chaves concatenados em um só.
 
 \subsection{Cifragem e Decifragem}
 
