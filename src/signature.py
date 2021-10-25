@@ -98,7 +98,7 @@ def verifySign():
     with open(f"../{filename}_sign.{file_ext}", "r") as f:
         hashOfMsg = f.read()
     msg_hash = hashlib.sha3_256(bytes(m_blocks))
-    print("O hash da mensagem decifrada é equivalente ao encontrado no arquivo!" if hashOfMsg == base64.b64encode(msg_hash.digest()).decode("utf-8") else "Os hashs se diferem!")
+    print("A assinatura é válida!" if hashOfMsg == base64.b64encode(msg_hash.digest()).decode("utf-8") else "A assinatura é inválida!")
 
 if args.d:
     verifySign()
@@ -111,6 +111,10 @@ with args.o as f:
         blocks += block
 
     if args.d:
-        blocks = bytes(blocks).decode("utf-8").rstrip("{").encode("utf-8")
+        for i in range(15):
+            if blocks[-1] == ord('{'):
+                blocks.pop()
+            else:
+                break
 
     f.write(bytes(blocks))
