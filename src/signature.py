@@ -1,5 +1,4 @@
 import argparse
-import hashlib
 import base64
 import os, sys
 from rsa.keys import generate_pair
@@ -8,9 +7,9 @@ import rsa.cipher as rsa
 import aes.keys as aeskey
 import aes.cipher as aes
 from util.args_helper import str2bool
-from util.byte_converter import bytes_to_str
 from util.byte_converter import bytes_to_arr
 from util.byte_converter import arr_to_bytes
+import hash.sign as signature
 
 parser = argparse.ArgumentParser(description='Cifra e decifra usando o RSA.', formatter_class=argparse.RawTextHelpFormatter)
 
@@ -34,7 +33,7 @@ with args.mensagem as f:
         m |= ord(byte)
         byte = f.read(1)
 
-pswd = session = key_pub = None
+pswd = session = None
 if args.k == None:
     if args.d:
         print("Para verificar a assinatura, é necessário passar a chave pública!")
@@ -74,7 +73,7 @@ else:
         print(e)
         exit()
 
-res = aes.Cipher(m_blocks, session.copy())
+res = aes.Cipher(m_blocks.copy(), session.copy())
 
 if not args.d and args.s == None:
     secret = rsa.encrypt(arr_to_bytes(session), pswd)
@@ -83,33 +82,18 @@ if not args.d and args.s == None:
 
 file = args.mensagem if args.d else args.o
 file_attr = file.name.split(".")
-filename = ".".join(file_attr[:-1])
-file_ext = file_attr[-1]
+filename = ".".join(file_attr[:-1]) if len(file_attr) > 1 else file_attr[0]
 
-def generateSign():
-    blocks = []
-    for block in res.blocks:
-        blocks += block
-    msg_hash = hashlib.sha3_256(bytes(blocks))
-    with open(f"../{filename}_sign.{file_ext}", "w") as f:
-        f.write(base64.b64encode(msg_hash.digest()).decode("utf-8"))
-
-def verifySign():
-    with open(f"../{filename}_sign.{file_ext}", "r") as f:
-        hashOfMsg = f.read()
-    msg_hash = hashlib.sha3_256(bytes(m_blocks))
-    print("A assinatura é válida!" if hashOfMsg == base64.b64encode(msg_hash.digest()).decode("utf-8") else "A assinatura é inválida!")
+blocks = []
+for block in res.blocks:
+    blocks += block
 
 if args.d:
-    verifySign()
+    signature.verify(filename, m_blocks, pswd)
 else:
-    generateSign()
+    signature.generate(filename, blocks, pswd)
 
 with args.o as f:
-    blocks = []
-    for block in res.blocks:
-        blocks += block
-
     if args.d:
         for i in range(15):
             if blocks[-1] == ord('{'):

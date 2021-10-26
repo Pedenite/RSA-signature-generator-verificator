@@ -1,5 +1,6 @@
 import os
 import base64
+import math
 from util.primes import generate_prime_number
 from util.byte_converter import bytes_to_str
 from util.byte_converter import str_to_bytes
@@ -13,7 +14,9 @@ def generate_pair(size=DEFAULT_SIZE):
 
     n = p*q
     phi = (p-1) * (q-1)
-    e = 65537               # TODO: 'e' needs to be coprime with 'phi'
+    e = generate_prime_number(primes_size >> 1)
+    while math.gcd(e, n) != 1:
+        e = generate_prime_number(primes_size >> 1)
 
     d = pow(e, -1, phi)     # multiplicative inverse
 

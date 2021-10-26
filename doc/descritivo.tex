@@ -71,7 +71,7 @@ Foi desenvolvido um algoritmo em python na versão 3.8 ou acima que recebe um ar
 python src/signature.py sample/msg.txt -o sample/cifra.txt
 \end{lstlisting}
 
-Vão ser geradas as chaves pública e privada do RSA que foram usadas para a cifração do hash (assinatura) e da chave de sessão (AES), que será gerada também, contendo a original em um arquivo e a sua cifra em outro. O programa vai avisar o local e nome de cada uma das chaves geradas. Pode ser passado o argumento \texttt{-h} para o programa para a listagem de opções disponíveis conforme mostrado abaixo:
+Vão ser geradas as chaves pública e privada do RSA que foram usadas para a cifração do hash (assinatura) e da chave de sessão (AES), que será gerada também, contendo a original em um arquivo e a sua cifra em outro. O programa vai avisar o local e nome de cada uma das chaves geradas pra que os arquivos possam ser passados como parâmetro na hora da verificação da assinatura. Pode ser passado o argumento \texttt{-h} para o programa para a listagem de opções disponíveis conforme mostrado abaixo:
 
 \begin{itemize}
     \item \textbf{-o} - Onde será feito o output. Obrigatório
@@ -101,13 +101,13 @@ Após a finalização da execução, o programa vai informar se o hash gerado ap
 
 Inicialmente são gerados 2 números primos aleatórios \texttt{p} e \texttt{q} de 1024 bits cada. Para obter estes números, foi inicialmente gerado um número qualquer do tamanho especificado, em seguida, sua primalidade foi testada para cada um dos primos até 1000, que foram dispostos em um array após serem computados uma única vez pelo crivo de Erastótenes. Em seguida, é realizado o teste de primalidade probabilístico de Miller Rabin, executado 20 vezes. Se ambos os testes passarem, o número é considerado primo e selecionado. Caso contrário, um novo número aleatório é gerado para realizar o teste novamente. Os códigos relacionados à geração e verificação dos primos estão localizados na pasta \texttt{src/util/primes.py}, incluindo a implementação do algoritmo de Miller Rabin.
 
-Com \texttt{p} e \texttt{q} definidos, a chave pública é obtida usando 2 valores, o \texttt{n} e o \texttt{e}. O número \texttt{n} é o resultado da multiplicação de \texttt{p} e \texttt{q}, logo sendo de 2048 bits e já o \texttt{e} será um primo bem menor que \texttt{p} e \texttt{q}. Já a chave privada é obtida pela função totiente de Euler em \texttt{n}, onde temos a multiplicação de 2 números primos, logo, podendo ser calculada pela fórmula abaixo:
+Com \texttt{p} e \texttt{q} definidos, a chave pública é obtida usando 2 valores, o \texttt{n} e o \texttt{e}. O número \texttt{n} é o resultado da multiplicação de \texttt{p} e \texttt{q}, logo sendo de 2048 bits e já o \texttt{e} será um primo bem menor que \texttt{p} e \texttt{q} sendo coprimo com \texttt{n}. Já a chave privada é obtida pela função totiente de Euler em \texttt{n}, onde temos a multiplicação de 2 números primos, logo, podendo ser calculada pela fórmula abaixo:
 
 \[
     \phi(n) = (p-1) \times (q-1)
 \]
 
-Com o resultado da função acima, é calculado o seu inverso multiplicativo com \texttt{e} para assim obter o valor de \texttt{d} que é o único valor necessário para a chave privada. Para fins de performance, também são adicionados os valores de \texttt{p} e \texttt{q} na chave privada. Após a geração, as chaves são guardadas na pasta \texttt{keys} com a formatação base64 sendo a pública com a extensão \texttt{.pub}. O conteúdo dos arquivos é basicamente os números que compõem cada uma das chaves concatenados em um só.
+Com o resultado da função acima, é calculado o seu inverso multiplicativo com \texttt{e} para assim obter o valor de \texttt{d} que é o único valor necessário para a chave privada. Para fins de performance, também são adicionados os valores de \texttt{p} e \texttt{q} na chave privada. Após a geração, as chaves são guardadas na pasta \texttt{keys} com a formatação base64 sendo a pública com a extensão \texttt{.pub}. O conteúdo dos arquivos é basicamente os números que compõem cada uma das chaves fixos com tamanho de 2048 bits concatenados em um só, de forma a facilitar o \textit{parsing} depois.
 
 \subsection{Cifragem e Decifragem}
 
@@ -137,8 +137,10 @@ Para a assinatura, foi criado um hash do criptograma gerado pelo AES usando a fu
     \caption{Verificação da assinatura}
 \end{figure}
 
+O script que realiza a geração e verificação das assinaturas pode ser encontrado no arquivo \texttt{src/hash/sign.py}. Nele, são recebidos os valores necessários para a operação a ser utilizada, onde o criptograma é cifrado pelo RSA para produzir a assinatura que é formatada em base64 no caso da geração. Já na verificação, o arquivo com a assinatura em base64 é decodificado e em seguida, decifrado com a chave pública para encontrar o hash que havia sido produzido anteriormente, que em seguida, é comparado com o novo hash gerado pelo criptograma. Se ambos forem iguais, a assinatura é válida.
+
 \section{Conclusões}
 
-Com a assinatura do documento, ao cifrá-lo e enviar a outra pessoa com as chaves necessárias, fica mais fácil de se verificar a integridade, pois qualquer mínima alteração no documento gerará um hash diferente que será identificado na verificação. O RSA é um grande nome no ramo das assinaturas digitais, sendo muito usado para a cifração do hash, já que é um algoritmo assimétrico e permite o envio apenas da cahve pública para o recipiente, o que impede de que seja gerada uma assinatura falsa.
+Com a assinatura do documento, ao cifrá-lo e enviar a outra pessoa com as chaves necessárias, fica mais fácil de se verificar a integridade, pois qualquer mínima alteração no documento gerará um hash diferente que será identificado na verificação. O RSA é um grande nome no ramo das assinaturas digitais, sendo muito usado para a cifração do hash, já que é um algoritmo assimétrico e permite o envio apenas da chave pública para o recipiente, o que impede de que seja gerada uma assinatura falsa.
 
 \end{document}
